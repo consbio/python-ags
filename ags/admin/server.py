@@ -6,7 +6,8 @@ from requests.utils import to_key_val_list
 from paths import AGS_ADMIN_PATH_PATTERNS
 from services.gp import GPServerDefinition
 from services.base import ServiceDefinition, ServiceItemInfo
-from ags.exceptions import HTTPError, ServerError
+from ags.exceptions import HTTPError, ServerError, ConnectionError
+from requests.exceptions import ConnectionError as _ConnectionError
 
 
 class ServerAdmin(object):
@@ -15,7 +16,7 @@ class ServerAdmin(object):
     def __init__(self, host, username, password, secure=False, admin_root="/arcgis/admin"):
         """
         Create a new connection to an ArcGIS server admin.
-        :param host: ArcGIS server hsotname
+        :param host: ArcGIS server hostname
         :param username: Admin username
         :param password: Admin password
         :param secure: If True, requests will use HTTPS only
@@ -38,26 +39,29 @@ class ServerAdmin(object):
         if not self.token or self.token_expiration >= time.time():
             self.generate_token()
 
-        url, data = self._prepare_request(path, data)
-        if multipart and not files:
-            fields = to_key_val_list(data)
-            new_fields = []
-            for field, val in fields:
-                if isinstance(val, basestring) or not hasattr(val, '__iter__'):
-                    val = [val]
-                for v in val:
-                    if v is not None:
-                        new_fields.append(
-                            (field.decode('utf-8') if isinstance(field, bytes) else field,
-                             v.encode('utf-8') if isinstance(v, str) else v))
-            body, content_type = encode_multipart_formdata(new_fields)
-            headers.update({
-                'Content-type': content_type
-            })
-            response = requests.post(url, data=body, headers=headers)
-        else:
-            response = requests.post(url, data=data, files=files, headers=headers)
-        return self._process_response(url, response)
+        try:
+            url, data = self._prepare_request(path, data)
+            if multipart and not files:
+                fields = to_key_val_list(data)
+                new_fields = []
+                for field, val in fields:
+                    if isinstance(val, basestring) or not hasattr(val, '__iter__'):
+                        val = [val]
+                    for v in val:
+                        if v is not None:
+                            new_fields.append(
+                                (field.decode('utf-8') if isinstance(field, bytes) else field,
+                                 v.encode('utf-8') if isinstance(v, str) else v))
+                body, content_type = encode_multipart_formdata(new_fields)
+                headers.update({
+                    'Content-type': content_type
+                })
+                response = requests.post(url, data=body, headers=headers)
+            else:
+                response = requests.post(url, data=data, files=files, headers=headers)
+            return self._process_response(url, response)
+        except _ConnectionError, e:
+            raise ConnectionError(e.message)
 
     def _get(self, path, data={}, headers={}):
         if not self.token or self.token_expiration >= time.time():
@@ -105,7 +109,7 @@ class ServerAdmin(object):
             'client': "requestip",
             'f': "json"
         }
-        url = "http://%s%s" % (self.scheme, self.host, path)
+        url = "%s://%s%s" % (self.scheme, self.host, path)
         response = self._process_response(url, requests.post(url, data=data))
         try:
             self.token, self.token_expiration = response['token'], response['expires']
