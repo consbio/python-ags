@@ -1,6 +1,6 @@
 AGS_ADMIN_PATH_PATTERNS = {
     'generate_token': "%(admin_root)s/generateToken",
-    'list_services': "%(admin_root)s/services%(folder)",
+    'list_services': "%(admin_root)s/services%(folder)s",
     'create_service': "%(admin_root)s/services/createService",
     'get_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s",
     'edit_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s/edit",
