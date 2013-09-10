@@ -3,6 +3,8 @@ import time
 import requests
 from requests.packages.urllib3 import encode_multipart_formdata
 from requests.utils import to_key_val_list
+from ags.admin.services.base import ServiceStatus
+from ags.admin.services.mapserver import MapServerDefinition
 from paths import AGS_ADMIN_PATH_PATTERNS
 from services.gp import GPServerDefinition
 from services.base import ServiceDefinition, ServiceItemInfo
@@ -116,6 +118,32 @@ class ServerAdmin(object):
         except KeyError:
             raise ValueError("ArcGIS server returned an invalid generate token resopnse: %s" % str(response))
 
+    def list_services(self, folder="/"):
+        """
+        Returns two values. The first value is a list of folder names in the form
+        [{'name': name, 'description': description}, ...], the second is a list of services in the form:
+        [{'name': name, 'type': type, 'description': description}, ...]
+        """
+
+        path = self.get_path("list_services", folder=folder)
+        response = self._get(path)
+        folders = []
+        services = []
+
+        for folder in response['foldersDetail']:
+            folders.append({
+              'name': folder['folderName'],
+              'description': folder['description']
+            })
+        for service in response['services']:
+            services.append({
+                'name': service['serviceName'],
+                'type': service['type'],
+                'description': service['description']
+            })
+
+        return folders, services
+
     def get_service(self, service_name, service_type, folder=None):
         """Retrieves a service definition from this ArcGIS server."""
 
@@ -129,6 +157,8 @@ class ServerAdmin(object):
 
         if service_type == "GPServer":
             service = GPServerDefinition(service_name=service_name)
+        elif service_type == "MapServer":
+            service = MapServerDefinition(service_name=service_name)
         else:
             service = ServiceDefinition(
                 service_name=service_name,
@@ -185,6 +215,17 @@ class ServerAdmin(object):
             'serviceItemInfo': json.dumps(info.get_data())
         }
         self._post(path, data, files={'thumbnail': ""})
+
+    def get_service_status(self, service_name, service_type, folder=None):
+        if folder:
+            path = self.get_path("get_service_status", service_path="%s/%s" % (folder, service_name),
+                                 service_type=service_type)
+        else:
+            path = self.get_path("get_service_status", service_path=service_name, service_type=service_type)
+        response = self._get(path)
+        status = ServiceStatus()
+        status.set_from_dictionary(response)
+        return status
 
     def start_service(self, service_name, service_type, folder=None):
         """Starts the specified service on this ArcGIS server."""

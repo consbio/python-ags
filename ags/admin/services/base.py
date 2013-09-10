@@ -81,3 +81,15 @@ class ServiceExtension(Properties):
             'properties': ("properties", {})
         })
         return props
+
+
+class ServiceStatus(Properties):
+    """Serivce status information"""
+
+    def get_properties(self):
+        props = super(ServiceStatus, self).get_properties()
+        props.update({
+            'configured_state': "configuredState",
+            'realtime_state': "realTimeState"
+        })
+        return props
