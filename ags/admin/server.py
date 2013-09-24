@@ -144,8 +144,34 @@ class ServerAdmin(object):
 
         return folders, services
 
+    def create_folder(self, name, description):
+        """Creates a new folder on the ArcGIS server"""
+
+        path = self.get_path("create_folder")
+        data = {
+            'folderName': name,
+            'description': description
+        }
+        self._post(path, data)
+
+    def edit_folder(self, folder_name, description, web_encrypted=False):
+        """Modifies the given folder description and "webEncrypted" property"""
+
+        path = self.get_path("edit_folder", folder=folder_name)
+        data = {
+            'description': description,
+            'webEncrypted': web_encrypted,
+        }
+        self._post(path, data)
+
+    def delete_folder(self, folder_name):
+        """Deletes the given folder and all services within it"""
+
+        path = self.get_path("delete_folder", folder=folder_name)
+        self._post(path)
+
     def get_service(self, service_name, service_type, folder=None):
-        """Retrieves a service definition from this ArcGIS server."""
+        """Retrieves a service definition from this ArcGIS server"""
 
         if folder:
             path = self.get_path("get_service", service_path="%s/%s" % (folder, service_name),
@@ -168,10 +194,15 @@ class ServerAdmin(object):
         service.set_from_dictionary(response)
         return service
 
-    def create_service(self, service):
+    def create_service(self, service, folder=None):
         """Creates the given service on this ArcGIS server."""
 
-        path = self.get_path("create_service")
+        if folder:
+            if folder[0] != "/":
+                folder = "/" + folder
+            path = self.get_path("create_service", folder=folder)
+        else:
+            path = self.get_path("create_service", folder="")
         data = {
             'service': json.dumps(service.get_data())
         }
