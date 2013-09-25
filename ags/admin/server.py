@@ -125,12 +125,14 @@ class ServerAdmin(object):
         [{'name': name, 'type': type, 'description': description}, ...]
         """
 
+        if folder[0] != "/":
+            folder = "/" + folder
         path = self.get_path("list_services", folder=folder)
         response = self._get(path)
         folders = []
         services = []
 
-        for folder in response['foldersDetail']:
+        for folder in response.get('foldersDetail', []):
             folders.append({
               'name': folder['folderName'],
               'description': folder['description']
