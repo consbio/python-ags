@@ -89,6 +89,9 @@ class ServerAdmin(object):
             try:
                 data = json.loads(response.content)
                 if data.get('status', None) == "error":
+                    if data.get('code', None):
+                        raise HTTPError("Error loading URL %s. The response was %d (%s)" % (url, data['code'],
+                                        ",".join(data['messages'])), data['code'])
                     raise ServerError("ArcGIS server response indicates error: %s" % data['messages'])
                 return data
             except ValueError:
