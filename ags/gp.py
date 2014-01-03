@@ -97,23 +97,12 @@ class GPTask(object):
                 try:
                     status = data['jobStatus']
                 except KeyError:
-                    print data
                     raise GPError("Server response is missing 'jobStatus' parameter")
                 if status in ESRI_JOB_STATUSES:
                     self.status = ESRI_JOB_STATUSES[status]
                 else:
                     raise GPError("Unrecognized job status: %s" % status)
-
-                self.messages = []
-                if isinstance(data.get('messages', None), list):
-                    for message in data['messages']:
-                        if isinstance(message, dict) and 'type' in message and 'description' in message:
-                            if message['type'] in ESRI_MESSAGE_TYPES:
-                                type = ESRI_MESSAGE_TYPES[message['type']]
-                            else:
-                                continue
-                            self.messages.append(GPMessage(type, message['description']))
-
+                self._populate_messages(data.get('messages', None))
                 if not blocking or self.status in (self.SUCCEEDED, self.FAILED, self.CANCELLED):
                     return self.status
                 else:
@@ -121,6 +110,47 @@ class GPTask(object):
                     continue
             else:
                 raise GPError("Server returned HTTP %d" % r.status_code)
+
+    def execute(self):
+        """Executes a synchronous task."""
+
+        data = {
+            'f': "json",
+            'returnZ': str(self.return_z).lower(),
+            'returnM': str(self.return_m).lower()
+        }
+        data.update(self.parameters)
+        if self.output_sr:
+            data['env:outputSR'] = self.output_sr
+        if self.process_sr:
+            data['env:processSR'] = self.process_sr
+        url = "%s/execute" % self.url
+        r = requests.post(url, data=data)
+        if 200 >= r.status_code < 300:
+            try:
+                data = json.loads(r.text)
+            except ValueError:
+                raise GPError("Server did not return a valid JSON response")
+            if data.get("error", None):
+                self.status = self.FAILED
+                self._populate_messages(data.get('messages', None))
+                return self.status
+            self.status = self.SUCCEEDED
+            self._populate_messages(data.get('messages', None))
+            return self.status
+        else:
+            raise GPError("Server returned HTTP %d" % r.status_code)
+
+    def _populate_messages(self, messages):
+        self.messages = []
+        if isinstance(messages, list):
+            for message in messages:
+                if isinstance(message, dict) and 'type' in message and 'description' in message:
+                    if message['type'] in ESRI_MESSAGE_TYPES:
+                        type = ESRI_MESSAGE_TYPES[message['type']]
+                    else:
+                        continue
+                    self.messages.append(GPMessage(type, message['description']))
 
 
 ESRI_JOB_STATUSES = {
