@@ -9,4 +9,8 @@ class HTTPError(Exception):
 
 
 class ServerError(Exception):
-    pass
+    def __init__(self, message=None, error=None):
+        self.message = message
+        self.error = error
+        if message:
+            super(ServerError, self).__init__(message)

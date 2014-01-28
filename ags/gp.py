@@ -31,6 +31,13 @@ class GPMessage(object):
         return unicode(self.message)
 
 
+class GPResult(object):
+    def __init__(self, name, type, value):
+        self.name = name
+        self.type = type
+        self.value = value
+
+
 class GPTask(object):
     NOT_SUBMITTED = 0
     WAITING = 1
@@ -103,6 +110,7 @@ class GPTask(object):
                 else:
                     raise GPError("Unrecognized job status: %s" % status)
                 self._populate_messages(data.get('messages', None))
+                self._populate_results(data.get('results', None))
                 if not blocking or self.status in (self.SUCCEEDED, self.FAILED, self.CANCELLED):
                     return self.status
                 else:
@@ -137,6 +145,7 @@ class GPTask(object):
                 return self.status
             self.status = self.SUCCEEDED
             self._populate_messages(data.get('messages', None))
+            self._populate_results(data.get('results', None))
             return self.status
         else:
             raise GPError("Server returned HTTP %d" % r.status_code)
@@ -151,6 +160,17 @@ class GPTask(object):
                     else:
                         continue
                     self.messages.append(GPMessage(type, message['description']))
+
+    def _populate_results(self, results):
+        self.results = {}
+        if isinstance(results, list):
+            for result in results:
+                if isinstance(result, dict) and 'paramName' in result and 'dataType' in result:
+                    self.results[result['paramName']] = GPResult(
+                        result['paramName'],
+                        result['dataType'],
+                        result['value']
+                    )
 
 
 ESRI_JOB_STATUSES = {
