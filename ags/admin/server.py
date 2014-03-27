@@ -5,6 +5,7 @@ from requests.packages.urllib3 import encode_multipart_formdata
 from requests.utils import to_key_val_list
 from ags.admin.services.base import ServiceStatus
 from ags.admin.services.mapserver import MapServerDefinition
+from ags.admin.uploads import UploadItem
 from paths import AGS_ADMIN_PATH_PATTERNS
 from services.gp import GPServerDefinition
 from services.base import ServiceDefinition, ServiceItemInfo
@@ -292,3 +293,17 @@ class ServerAdmin(object):
         else:
             path = self.get_path("delete_service", service_path=service_name, service_type=service_type)
         self._post(path)
+
+    def upload_item(self, file_or_path, description):
+        """Uploads a file, provided as a path of a file-like object."""
+
+        if isinstance(file_or_path, basestring):
+            file_obj = open(file_or_path, 'rb')
+        else:
+            file_obj = file_or_path
+
+        path = self.get_path("upload_item")
+        response = self._post(path, data={'description': description}, files={'itemFile': file_obj})
+        item = UploadItem()
+        item.set_from_dictionary(response['item'])
+        return item

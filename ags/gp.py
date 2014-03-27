@@ -48,9 +48,10 @@ class GPTask(object):
     CANCELLING = 6
     CANCELLED = 7
 
-    def __init__(self, url, parameters={}):
+    def __init__(self, url, parameters={}, token=None):
         self.url = url
         self.parameters = parameters
+        self.token = token
         self.output_sr = None
         self.process_sr = None
         self.return_z = False
@@ -75,7 +76,10 @@ class GPTask(object):
             data['env:processSR'] = self.process_sr
 
         url = "%s/submitJob" % self.url
-        r = requests.post(url, data=data)
+        cookies = {}
+        if self.token:
+            cookies['agstoken'] = self.token
+        r = requests.post(url, data=data, cookies=cookies)
         if 200 >= r.status_code < 300:
             try:
                 data = json.loads(r.text)
@@ -95,7 +99,10 @@ class GPTask(object):
         url = "%s/jobs/%s?f=json" % (self.url, self.job_id)
 
         while True:
-            r = requests.get(url)
+            cookies = {}
+            if self.token:
+                cookies['agstoken'] = self.token
+            r = requests.get(url, cookies=cookies)
             if 200 >= r.status_code < 300:
                 try:
                     data = json.loads(r.text)
@@ -133,7 +140,10 @@ class GPTask(object):
         if self.process_sr:
             data['env:processSR'] = self.process_sr
         url = "%s/execute" % self.url
-        r = requests.post(url, data=data)
+        cookies = {}
+        if self.token:
+            cookies['agstoken'] = self.token
+        r = requests.post(url, data=data, cookies=cookies)
         if 200 >= r.status_code < 300:
             try:
                 data = json.loads(r.text)

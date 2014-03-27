@@ -12,5 +12,6 @@ AGS_ADMIN_PATH_PATTERNS = {
     'get_service_status': "%(admin_root)s/services/%(service_path)s.%(service_type)s/status",
     'start_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s/start",
     'stop_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s/stop",
-    'delete_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s/delete"
+    'delete_service': "%(admin_root)s/services/%(service_path)s.%(service_type)s/delete",
+    'upload_item': "%(admin_root)s/uploads/upload"
 }
