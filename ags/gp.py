@@ -56,6 +56,7 @@ class GPTask(object):
         self.process_sr = None
         self.return_z = False
         self.return_m = False
+        self.synchronous = False
 
         self.status = self.NOT_SUBMITTED
         self.messages = []
@@ -64,6 +65,7 @@ class GPTask(object):
     def submit_job(self, blocking=False):
         """Submit the GP task for processing. If blocking=True, this call will block until the job is complete."""
 
+        self.synchronous = False
         data = {
             'f': "json",
             'returnZ': str(self.return_z).lower(),
@@ -129,6 +131,7 @@ class GPTask(object):
     def execute(self):
         """Executes a synchronous task."""
 
+        self.synchronous = True
         data = {
             'f': "json",
             'returnZ': str(self.return_z).lower(),
@@ -173,7 +176,7 @@ class GPTask(object):
 
     def _populate_results(self, results):
         self.results = {}
-        if isinstance(results, list):
+        if self.synchronous and isinstance(results, list):
             for result in results:
                 if isinstance(result, dict) and 'paramName' in result and 'dataType' in result:
                     self.results[result['paramName']] = GPResult(
@@ -181,6 +184,18 @@ class GPTask(object):
                         result['dataType'],
                         result['value']
                     )
+        elif not self.synchronous and isinstance(results, dict):
+            for k, v in results.iteritems():
+                cookies = {}
+                if self.token:
+                    cookies['agstoken'] = self.token
+                r = requests.get("%s/jobs/%s/%s?f=json" % (self.url, self.job_id, v['paramUrl']), cookies=cookies)
+                data = json.loads(r.text)
+                self.results[data['paramName']] = GPResult(
+                    data['paramName'],
+                    data['dataType'],
+                    data['value']
+                )
 
 
 ESRI_JOB_STATUSES = {
