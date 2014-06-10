@@ -154,7 +154,7 @@ class GPTask(object):
                 raise GPError("Server did not return a valid JSON response")
             if data.get("error", None):
                 self.status = self.FAILED
-                self._populate_messages(data.get('messages', None))
+                self._populate_messages(data['error'].get('details', None))
                 return self.status
             self.status = self.SUCCEEDED
             self._populate_messages(data.get('messages', None))
@@ -173,6 +173,8 @@ class GPTask(object):
                     else:
                         continue
                     self.messages.append(GPMessage(type, message['description']))
+                elif isinstance(message, basestring):
+                    self.messages.append(GPMessage(GPMessage.ERROR, message))
 
     def _populate_results(self, results):
         self.results = {}
