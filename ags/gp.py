@@ -84,7 +84,7 @@ class GPTask(object):
         r = requests.post(url, data=data, cookies=cookies)
         if 200 >= r.status_code < 300:
             try:
-                data = json.loads(r.text)
+                data = json.loads(r.text, strict=False)
             except ValueError:
                 raise GPError("Server did not return a valid JSON response")
             try:
@@ -107,7 +107,7 @@ class GPTask(object):
             r = requests.get(url, cookies=cookies)
             if 200 >= r.status_code < 300:
                 try:
-                    data = json.loads(r.text)
+                    data = json.loads(r.text, strict=False)
                 except ValueError:
                     raise GPError("Server did not return a valid JSON response")
                 try:
@@ -149,7 +149,7 @@ class GPTask(object):
         r = requests.post(url, data=data, cookies=cookies)
         if 200 >= r.status_code < 300:
             try:
-                data = json.loads(r.text)
+                data = json.loads(r.text, strict=False)
             except ValueError:
                 raise GPError("Server did not return a valid JSON response")
             if data.get("error", None):
@@ -192,7 +192,7 @@ class GPTask(object):
                 if self.token:
                     cookies['agstoken'] = self.token
                 r = requests.get("%s/jobs/%s/%s?f=json" % (self.url, self.job_id, v['paramUrl']), cookies=cookies)
-                data = json.loads(r.text)
+                data = json.loads(r.text, strict=False)
                 self.results[data['paramName']] = GPResult(
                     data['paramName'],
                     data['dataType'],

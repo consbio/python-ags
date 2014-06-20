@@ -88,7 +88,7 @@ class ServerAdmin(object):
                             (url, response.status_code, response.reason), response.status_code)
         elif response.content:
             try:
-                data = json.loads(response.content)
+                data = json.loads(response.content, strict=False)
                 if data.get('status', None) == "error":
                     if data.get('code', None):
                         raise HTTPError("Error loading URL %s. The response was %d (%s)" % (url, data['code'],
