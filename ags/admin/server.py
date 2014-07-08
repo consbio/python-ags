@@ -98,6 +98,9 @@ class ServerAdmin(object):
             except ValueError:
                 raise ServerError("Error parsing response from server: %s" % response.content)
 
+    def _get_service_path(self, service_name, folder=''):
+        return '/'.join((folder, service_name)).lstrip('/')
+
     def get_path(self, name, **kwargs):
         kwargs['admin_root'] = self.root
         return AGS_ADMIN_PATH_PATTERNS[name] % kwargs
@@ -185,7 +188,8 @@ class ServerAdmin(object):
         """Retrieves a service definition from this ArcGIS server"""
 
         service_path = '/'.join((folder, service_name))
-        response = self._get(self.get_path("get_service", service_path=service_path, service_type=service_type))
+        response = self._get(self.get_path("get_service", service_path=self._get_service_path(service_name, folder),
+                                           service_type=service_type))
 
         if service_type == "GPServer":
             service = GPServerDefinition(service_name=service_name)
@@ -217,8 +221,8 @@ class ServerAdmin(object):
     def edit_service(self, service, service_name, service_type, folder=''):
         """Modifies the given service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        path = self.get_path("edit_service", service_path=service_path, service_type=service_type)
+        path = self.get_path("edit_service", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         data = {
             'service': json.dumps(service.get_data())
         }
@@ -227,8 +231,8 @@ class ServerAdmin(object):
     def get_service_item_info(self, service_name, service_type, folder=''):
         """Retrieves item info for the given service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        path = self.get_path("get_service_item_info", service_path=service_path, service_type=service_type)
+        path = self.get_path("get_service_item_info", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         response = self._get(path)
         info = ServiceItemInfo()
         info.set_from_dictionary(response)
@@ -237,8 +241,8 @@ class ServerAdmin(object):
     def edit_service_item_info(self, info, service_name, service_type, folder=''):
         """Sets item info for the given service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        path = self.get_path("edit_service_item_info", service_path=service_path, service_type=service_type)
+        path = self.get_path("edit_service_item_info", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         data = {
             'serviceItemInfo': json.dumps(info.get_data())
         }
@@ -247,8 +251,9 @@ class ServerAdmin(object):
     def get_service_status(self, service_name, service_type, folder=''):
         """Gets the status info for the given service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        response = self._get(self.get_path("get_service_status", service_path=service_path, service_type=service_type))
+        response = self._get(self.get_path("get_service_status",
+                                           service_path=self._get_service_path(service_name, folder),
+                                           service_type=service_type))
         status = ServiceStatus()
         status.set_from_dictionary(response)
         return status
@@ -256,20 +261,20 @@ class ServerAdmin(object):
     def start_service(self, service_name, service_type, folder=''):
         """Starts the specified service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        self._post(self.get_path("start_service", service_path=service_path, service_type=service_type))
+        self._post(self.get_path("start_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
     def stop_service(self, service_name, service_type, folder=''):
         """Stops the specified service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        self._post(self.get_path("stop_service", service_path=service_path, service_type=service_type))
+        self._post(self.get_path("stop_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
     def delete_service(self, service_name, service_type, folder=''):
         """Stops the specified service on this ArcGIS server."""
 
-        service_path = '/'.join((folder, service_name)).lstrip('/')
-        self._post(self.get_path("delete_service", service_path=service_path, service_type=service_type))
+        self._post(self.get_path("delete_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
     def upload_item(self, file_or_path, description):
         """Uploads a file, provided as a path of a file-like object."""
