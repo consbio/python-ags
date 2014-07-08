@@ -150,6 +150,17 @@ class ServerAdmin(object):
 
         return folders, services
 
+    def service_exists(self, service_name, service_type, folder=None):
+        """Checks to see if the service exists on this server"""
+
+        try:
+            self.get_service_status(service_name, service_type, folder)
+            return True
+        except HTTPError as e:
+            if not e.status_code == 404:
+                raise
+        return False
+
     def create_folder(self, name, description):
         """Creates a new folder on the ArcGIS server"""
 
