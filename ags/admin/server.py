@@ -98,6 +98,9 @@ class ServerAdmin(object):
             except ValueError:
                 raise ServerError("Error parsing response from server: %s" % response.content)
 
+    def _get_service_path(self, service_name, folder=''):
+        return '/'.join((folder, service_name)).lstrip('/')
+
     def get_path(self, name, **kwargs):
         kwargs['admin_root'] = self.root
         return AGS_ADMIN_PATH_PATTERNS[name] % kwargs
@@ -122,17 +125,14 @@ class ServerAdmin(object):
         except KeyError:
             raise ValueError("ArcGIS server returned an invalid generate token resopnse: %s" % str(response))
 
-    def list_services(self, folder="/"):
+    def list_services(self, folder=''):
         """
         Returns two values. The first value is a list of folder names in the form
         [{'name': name, 'description': description}, ...], the second is a list of services in the form:
         [{'name': name, 'type': type, 'description': description}, ...]
         """
 
-        if folder[0] != "/":
-            folder = "/" + folder
-        path = self.get_path("list_services", folder=folder)
-        response = self._get(path)
+        response = self._get(self.get_path("list_services", folder=folder))
         folders = []
         services = []
 
@@ -150,42 +150,46 @@ class ServerAdmin(object):
 
         return folders, services
 
-    def create_folder(self, name, description):
+    def service_exists(self, service_name, service_type, folder=''):
+        """Checks to see if the service exists on this server"""
+
+        try:
+            self.get_service_status(service_name, service_type, folder)
+            return True
+        except HTTPError as e:
+            if not e.status_code == 404:
+                raise
+        return False
+
+    def create_folder(self, folder_name, description):
         """Creates a new folder on the ArcGIS server"""
 
-        path = self.get_path("create_folder")
         data = {
-            'folderName': name,
+            'folderName': folder_name,
             'description': description
         }
-        self._post(path, data)
+        self._post(self.get_path("create_folder"), data)
 
     def edit_folder(self, folder_name, description, web_encrypted=False):
         """Modifies the given folder description and "webEncrypted" property"""
 
-        path = self.get_path("edit_folder", folder=folder_name)
         data = {
             'description': description,
             'webEncrypted': web_encrypted,
         }
-        self._post(path, data)
+        self._post(self.get_path("edit_folder", folder=folder_name), data)
 
     def delete_folder(self, folder_name):
         """Deletes the given folder and all services within it"""
 
-        path = self.get_path("delete_folder", folder=folder_name)
-        self._post(path)
+        self._post(self.get_path("delete_folder", folder=folder_name))
 
-    def get_service(self, service_name, service_type, folder=None):
+    def get_service(self, service_name, service_type, folder=''):
         """Retrieves a service definition from this ArcGIS server"""
 
-        if folder:
-            path = self.get_path("get_service", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("get_service", service_path=service_name, service_type=service_type)
-
-        response = self._get(path)
+        service_path = '/'.join((folder, service_name))
+        response = self._get(self.get_path("get_service", service_path=self._get_service_path(service_name, folder),
+                                           service_type=service_type))
 
         if service_type == "GPServer":
             service = GPServerDefinition(service_name=service_name)
@@ -214,85 +218,63 @@ class ServerAdmin(object):
         }
         self._post(path, data)
 
-    def edit_service(self, service, service_name, service_type, folder=None):
+    def edit_service(self, service, service_name, service_type, folder=''):
         """Modifies the given service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("edit_service", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("edit_service", service_path=service_name, service_type=service_type)
+        path = self.get_path("edit_service", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         data = {
             'service': json.dumps(service.get_data())
         }
         self._post(path, data)
 
-    def get_service_item_info(self, service_name, service_type, folder=None):
+    def get_service_item_info(self, service_name, service_type, folder=''):
         """Retrieves item info for the given service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("get_service_item_info", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("get_service_item_info", service_path=service_name, service_type=service_type)
+        path = self.get_path("get_service_item_info", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         response = self._get(path)
         info = ServiceItemInfo()
         info.set_from_dictionary(response)
         return info
 
-    def edit_service_item_info(self, info, service_name, service_type, folder=None):
+    def edit_service_item_info(self, info, service_name, service_type, folder=''):
         """Sets item info for the given service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("edit_service_item_info", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("edit_service_item_info", service_path=service_name, service_type=service_type)
+        path = self.get_path("edit_service_item_info", service_path=self._get_service_path(service_name, folder),
+                             service_type=service_type)
         data = {
             'serviceItemInfo': json.dumps(info.get_data())
         }
         self._post(path, data, files={'thumbnail': ""})
 
-    def get_service_status(self, service_name, service_type, folder=None):
-        if folder:
-            path = self.get_path("get_service_status", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("get_service_status", service_path=service_name, service_type=service_type)
-        response = self._get(path)
+    def get_service_status(self, service_name, service_type, folder=''):
+        """Gets the status info for the given service on this ArcGIS server."""
+
+        response = self._get(self.get_path("get_service_status",
+                                           service_path=self._get_service_path(service_name, folder),
+                                           service_type=service_type))
         status = ServiceStatus()
         status.set_from_dictionary(response)
         return status
 
-    def start_service(self, service_name, service_type, folder=None):
+    def start_service(self, service_name, service_type, folder=''):
         """Starts the specified service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("start_service", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("start_service", service_path=service_name, service_type=service_type)
-        self._post(path)
+        self._post(self.get_path("start_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
-    def stop_service(self, service_name, service_type, folder=None):
+    def stop_service(self, service_name, service_type, folder=''):
         """Stops the specified service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("stop_service", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("stop_service", service_path=service_name, service_type=service_type)
-        self._post(path)
+        self._post(self.get_path("stop_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
-    def delete_service(self, service_name, service_type, folder=None):
+    def delete_service(self, service_name, service_type, folder=''):
         """Stops the specified service on this ArcGIS server."""
 
-        if folder:
-            path = self.get_path("delete_service", service_path="%s/%s" % (folder, service_name),
-                                 service_type=service_type)
-        else:
-            path = self.get_path("delete_service", service_path=service_name, service_type=service_type)
-        self._post(path)
+        self._post(self.get_path("delete_service", service_path=self._get_service_path(service_name, folder),
+                                 service_type=service_type))
 
     def upload_item(self, file_or_path, description):
         """Uploads a file, provided as a path of a file-like object."""
