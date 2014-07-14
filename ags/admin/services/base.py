@@ -84,7 +84,7 @@ class ServiceExtension(Properties):
 
 
 class ServiceStatus(Properties):
-    """Serivce status information"""
+    """Service status information"""
 
     def get_properties(self):
         props = super(ServiceStatus, self).get_properties()

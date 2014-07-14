@@ -3,6 +3,8 @@ from base import ServiceDefinition
 
 
 class DynamicDataWorkspaceDefinition(Properties):
+    """DynamicDataWorkspaceDefinition"""
+
     def get_properties(self):
         data = super(DynamicDataWorkspaceDefinition, self).get_properties()
         data.update({
@@ -13,6 +15,8 @@ class DynamicDataWorkspaceDefinition(Properties):
 
 
 class MapServerProperties(Properties):
+    """MapServer properteries"""
+
     def get_properties(self):
         data = super(MapServerProperties, self).get_properties()
         data.update({
@@ -45,6 +49,8 @@ class MapServerProperties(Properties):
 
 
 class MapServerDefinition(ServiceDefinition):
+    """MapServerDefinition"""
+
     def __init__(self, **kwargs):
         kwargs.update({
             'type': "MapServer",

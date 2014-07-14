@@ -2,7 +2,7 @@ from ags.base import Properties
 
 
 class UploadItem(Properties):
-    """Upload item"""
+    """Upload item properties"""
 
     def get_properties(self):
         props = super(UploadItem, self).get_properties()

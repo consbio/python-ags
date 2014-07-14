@@ -40,12 +40,13 @@ class Properties(object):
     def get_properties(self):
         """
         Returns a dictionary of service definition properties properties for this service with optional default values.
-        E.g:
+        For example::
 
-        {
-            'service_name': 'serviceName',
-            'format': ('f', "json")  # Default value will be 'json'
-        }
+            {
+                'service_name': 'serviceName',
+                'format': ('f', "json")  # Default value will be 'json'
+            }
+
         """
 
         return {}
