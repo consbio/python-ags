@@ -14,7 +14,7 @@ administration operations.  Other interfaces will likely be added over time.
 
 *Using pip:*
 This is the simplest way to install this library:
-```pip install https://bitbucket.org/databasin/python-ags/get/develop.zip#egg=python-ags```
+```pip install https://bitbucket.org/databasin/python-ags/get/default.zip#egg=python-ags```
 
 *Manual installation:*
 Download the [latest changes](https://bitbucket.org/databasin/python-ags/get/default.zip)
