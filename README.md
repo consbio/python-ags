@@ -3,8 +3,6 @@
 ## Overview ##
 
 This library provides a client interface to the REST API on ArcGIS Server 10.2.x
-
-[Documentation](/databasin/python-ags/src/docs/index.rst)  
  
 Note: This library is a work in progress, and currently only includes interfaces for geoprocessing tasks and server 
 administration operations.  Other interfaces will likely be added over time.  
@@ -13,17 +11,37 @@ administration operations.  Other interfaces will likely be added over time.
 ## Installation ##
 
 *Using pip:*
-This is the simplest way to install this library:
-```pip install https://bitbucket.org/databasin/python-ags/get/default.zip#egg=python-ags```
+
+To install the latest stable version:
+
+```
+pip install python-ags
+```
+
+To install the latest changes:
+
+```
+pip install https://bitbucket.org/databasin/python-ags/get/default.zip#egg=python-ags
+```
 
 *Manual installation:*
-Download the [latest changes](https://bitbucket.org/databasin/python-ags/get/default.zip)
-and extract to your computer.
 
-Open a console, change to the above directory, and execute ```python setup.py install```
+Download the [latest changes](https://bitbucket.org/databasin/python-ags/get/default.zip), extract, 
+and execute 
 
-This will install the script to your local python packages folder.
+```
+python setup.py install
+```
 
+
+## Usage ##
+
+```
+from ags.admin.server import ServerAdmin
+
+server_admin = ServerAdmin(hostname, admin_user, admin_pwd)
+print server_admin.list_services()
+```
 
 
 ## Requirements ##
@@ -40,7 +58,7 @@ functionality is one of the primary reasons we created this library.
 
 
 ## License ##
-Copyright (c) 2014, Conservation Biology Institute
+Copyright (c) 2013, 2014 Conservation Biology Institute
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
