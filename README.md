@@ -4,14 +4,20 @@
 
 This library provides a client interface to the REST API on ArcGIS Server 10.2.x
 
-[Documentation](/databasin/python-ags/src/docs/index.html)  
+[Documentation](/databasin/python-ags/src/docs/index.rst)  
  
 Note: This library is a work in progress, and currently only includes interfaces for geoprocessing tasks and server 
 administration operations.  Other interfaces will likely be added over time.  
 
 
 ## Installation ##
-Download the latest changes from the [develop branch](https://bitbucket.org/databasin/python-ags/get/develop.zip)
+
+*Using pip:*
+This is the simplest way to install this library:
+```pip install https://bitbucket.org/databasin/python-ags/get/develop.zip#egg=python-ags```
+
+*Manual installation:*
+Download the [latest changes](https://bitbucket.org/databasin/python-ags/get/default.zip)
 and extract to your computer.
 
 Open a console, change to the above directory, and execute ```python setup.py install```
@@ -24,3 +30,37 @@ This will install the script to your local python packages folder.
 requests
 
 
+## Related Projects ##
+There is a new python package from ESRI that provides some overlap with the functionality of this library: 
+[ArcREST](https://github.com/Esri/ArcREST)
+
+However, as of this writing, there is no administrative interface for creating services in that package, whereas that
+functionality is one of the primary reasons we created this library.
+
+
+
+## License ##
+Copyright (c) 2014, Conservation Biology Institute
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the Conservation Biology Institute nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL CONSERVATION BIOLOGY INSTITUTE BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
