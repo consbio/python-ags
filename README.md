@@ -7,6 +7,8 @@ This library provides a client interface to the REST API on ArcGIS Server 10.2.x
 Note: This library is a work in progress, and currently only includes interfaces for geoprocessing tasks and server 
 administration operations.  Other interfaces will likely be added over time.  
 
+[Documentation](http://arcgis-server-python-client.readthedocs.org/en/latest/)
+
 
 ## Installation ##
 

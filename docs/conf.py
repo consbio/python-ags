@@ -3,6 +3,8 @@
 import sys
 import os
 
+sys.path.insert(0, '../')
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
