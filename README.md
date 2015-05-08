@@ -60,7 +60,7 @@ functionality is one of the primary reasons we created this library.
 
 
 ## License ##
-Copyright (c) 2013, 2014 Conservation Biology Institute
+Copyright (c) 2013, 2014, 2015 Conservation Biology Institute
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
