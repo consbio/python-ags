@@ -104,7 +104,7 @@ class ServerAdmin(object):
         kwargs['admin_root'] = self.root
         return AGS_ADMIN_PATH_PATTERNS[name] % kwargs
 
-    def generate_token(self):
+    def generate_token(self, token_lifespan_in_minutes=None):
         """
         Generates a new token for this server. This should never need to be called directly, as the server will
         automatically generate a new token when necessary.
@@ -117,6 +117,9 @@ class ServerAdmin(object):
             'client': "requestip",
             'f': "json"
         }
+        if token_lifespan_in_minutes:
+            data['expiration'] = token_lifespan_in_minutes
+
         url = "%s://%s%s" % (self.scheme, self.host, path)
         response = self._process_response(url, requests.post(url, data=data))
         try:
