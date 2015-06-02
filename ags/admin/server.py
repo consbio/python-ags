@@ -104,10 +104,12 @@ class ServerAdmin(object):
         kwargs['admin_root'] = self.root
         return AGS_ADMIN_PATH_PATTERNS[name] % kwargs
 
-    def generate_token(self, token_lifespan_in_minutes=None):
+    def generate_token(self, duration=None):
         """
         Generates a new token for this server. This should never need to be called directly, as the server will
         automatically generate a new token when necessary.
+
+        :param duration: The duration of the generated token in minutes
         """
 
         path = self._get_path("generate_token")
@@ -117,8 +119,10 @@ class ServerAdmin(object):
             'client': "requestip",
             'f': "json"
         }
-        if token_lifespan_in_minutes:
-            data['expiration'] = token_lifespan_in_minutes
+        if duration:
+            if duration < 1 or duration > 20160:
+                raise ValueError('Duration must be a positive integer in minutes, no greater than 20160 (14 days)')
+            data['expiration'] = duration
 
         url = "%s://%s%s" % (self.scheme, self.host, path)
         response = self._process_response(url, requests.post(url, data=data))
