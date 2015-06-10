@@ -119,7 +119,7 @@ class ServerAdmin(object):
             'client': "requestip",
             'f': "json"
         }
-        if duration:
+        if duration is not None:
             if duration < 1 or duration > 20160:
                 raise ValueError('Duration must be a positive integer in minutes, no greater than 20160 (14 days)')
             data['expiration'] = duration
