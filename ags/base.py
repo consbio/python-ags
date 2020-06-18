@@ -9,8 +9,8 @@ class Properties(object):
         self.__dict__['_data'] = {}
         self.__dict__['_attr_name_map'] = {}
         self.__dict__['_ags_name_map'] = {}
-        for k, v in self.get_properties().iteritems():
-            if isinstance(v, basestring):
+        for k, v in self.get_properties().items():
+            if isinstance(v, str):
                 self.__dict__['_data'][k] = None
                 self.__dict__['_attr_name_map'][k] = v
                 self.__dict__['_ags_name_map'][v] = k
@@ -19,7 +19,7 @@ class Properties(object):
                 self.__dict__['_attr_name_map'][k] = v[0]
                 self.__dict__['_ags_name_map'][v[0]] = k
 
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             if k in self._data:
                 self.__dict__['_data'][k] = v
             else:
@@ -55,7 +55,7 @@ class Properties(object):
         """Returns a dictionary representing this description."""
 
         data = {}
-        for k, v in self._data.iteritems():
+        for k, v in self._data.items():
             key = self._attr_name_map[k]
             if isinstance(v, Properties):
                 v = v.get_data()
@@ -74,6 +74,6 @@ class Properties(object):
     def set_from_dictionary(self, d):
         """Set properties form a dictionary. Keys are expected to be the API name, not the Python name."""
 
-        for k, v in d.iteritems():
+        for k, v in d.items():
             if k in self._ags_name_map:
                 self._data[self._ags_name_map[k]] = v

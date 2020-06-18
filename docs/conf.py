@@ -22,8 +22,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ArcGIS Server Python Client'
-copyright = u'2014, Data Basin'
+project = 'ArcGIS Server Python Client'
+copyright = '2014, Data Basin'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

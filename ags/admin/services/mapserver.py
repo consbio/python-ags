@@ -1,5 +1,5 @@
 from ags.base import Properties
-from base import ServiceDefinition
+from .base import ServiceDefinition
 
 
 class DynamicDataWorkspaceDefinition(Properties):

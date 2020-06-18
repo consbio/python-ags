@@ -36,7 +36,7 @@ class GPMessage(object):
         return str(self.message)
 
     def __unicode__(self):
-        return unicode(self.message)
+        return str(self.message)
 
 
 class GPResult(object):
@@ -212,7 +212,7 @@ class GPTask(object):
                     else:
                         continue
                     self.messages.append(GPMessage(type, message['description']))
-                elif isinstance(message, basestring):
+                elif isinstance(message, str):
                     self.messages.append(GPMessage(GPMessage.ERROR, message))
 
     def _populate_results(self, results):
@@ -226,7 +226,7 @@ class GPTask(object):
                         result['value']
                     )
         elif not self.synchronous and isinstance(results, dict):
-            for k, v in results.iteritems():
+            for k, v in results.items():
                 cookies = {}
                 if self.token:
                     cookies['agstoken'] = self.token

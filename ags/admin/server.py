@@ -9,10 +9,11 @@ from requests.exceptions import ConnectionError as _ConnectionError
 from ags.admin.services.base import ServiceStatus
 from ags.admin.services.mapserver import MapServerDefinition
 from ags.admin.uploads import UploadItem
-from paths import AGS_ADMIN_PATH_PATTERNS
-from services.gp import GPServerDefinition
-from services.base import ServiceDefinition, ServiceItemInfo
 from ags.exceptions import HTTPError, ServerError, ConnectionError
+
+from .paths import AGS_ADMIN_PATH_PATTERNS
+from .services.gp import GPServerDefinition
+from .services.base import ServiceDefinition, ServiceItemInfo
 
 
 class ServerAdmin(object):
@@ -47,7 +48,7 @@ class ServerAdmin(object):
                 fields = to_key_val_list(data)
                 new_fields = []
                 for field, val in fields:
-                    if isinstance(val, basestring) or not hasattr(val, '__iter__'):
+                    if isinstance(val, str) or not hasattr(val, '__iter__'):
                         val = [val]
                     for v in val:
                         if v is not None:
@@ -62,7 +63,7 @@ class ServerAdmin(object):
             else:
                 response = requests.post(url, data=data, files=files, headers=headers)
             return self._process_response(url, response)
-        except _ConnectionError, e:
+        except _ConnectionError as e:
             raise ConnectionError(e.message)
 
     def _get(self, path, data={}, headers={}):
@@ -369,7 +370,7 @@ class ServerAdmin(object):
         :param description: description of file
         """
 
-        if isinstance(file_or_path, basestring):
+        if isinstance(file_or_path, str):
             file_obj = open(file_or_path, 'rb')
         else:
             file_obj = file_or_path
