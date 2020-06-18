@@ -1,6 +1,10 @@
-syntax: glob
 *.pyc
-build/*
-docs/_build/*
-MANIFEST
 *.zip
+.cache/
+.coverage
+__pycache__/
+build/
+dist/
+docs/_build/
+python_ags.egg-info/
+MANIFEST
