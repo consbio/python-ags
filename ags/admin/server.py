@@ -64,7 +64,7 @@ class ServerAdmin(object):
                 response = requests.post(url, data=data, files=files, headers=headers)
             return self._process_response(url, response)
         except _ConnectionError as e:
-            raise ConnectionError(e.message)
+            raise ConnectionError(getattr(e, 'message', e))
 
     def _get(self, path, data={}, headers={}):
         if not self.token or self.token_expiration >= time.time():
