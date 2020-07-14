@@ -128,7 +128,7 @@ class ServerAdmin(object):
         url = "%s://%s%s" % (self.scheme, self.host, path)
         response = self._process_response(url, requests.post(url, data=data))
         try:
-            self.token, self.token_expiration = response['token'], response['expires']
+            self.token, self.token_expiration = response['token'], float(response['expires'] or 0)
         except KeyError:
             raise ValueError("ArcGIS server returned an invalid generate token resopnse: %s" % str(response))
 

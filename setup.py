@@ -22,7 +22,7 @@ setup(
     description="A client interface to the REST API on ArcGIS Server 10.2.x",
     long_description=long_description,
     keywords="arcgis ags",
-    version="0.3.1",
+    version="0.3.2",
     packages=["ags", "ags.admin", "ags.admin.services"],
     requires=["requests"],
     url="https://bitbucket.org/databasin/python-ags",
